@@ -1,0 +1,74 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Runs a single command using the runners shell
+      - name: Run a one-line script
+        run: echo Hello, world!
+
+      # Runs a set of commands using the runners shell
+      - name: Run a multi-line script
+        run: |
+          echo Add other actions to build,
+          echo test, and deploy your project.
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+import os
+from twilio.rest import Client
+from time import time, sleep
+
+wd_path="/home/ayyuce/chrome/chromedriver"  #do not forget to change the path
+wd = webdriver.Chrome(executable_path=wd_path)
+
+while True:
+    
+    wd.get("https://enabiz.gov.tr/")
+    usrname = wd.find_element_by_id("username")
+    usrname.send_keys('ID_number')
+    passwd = wd.find_element_by_id("Sifre")
+    passwd.send_keys("your_password")
+    wd.find_element_by_id("btnGiris").click()
+
+    wd.get("https://enabiz.gov.tr/AsiTakvimi?whichTab=True")
+
+    msg = None
+    for elem in wd.find_elements_by_id("dvCovidAsi"):
+        msg = elem.text
+    print(msg)
+
+    account_sid = "YOUR_ACCOUNT_SID"
+    auth_token = "YOUR_AUTH_TOKEN"
+    client = Client(account_sid, auth_token)
+
+    message = client.messages.create(
+                                body=msg,
+                                from_='whatsapp:+14155238886',
+                                to='whatsapp:+905555555555' #your phone number
+
+                            )
+
+    print(message.sid)
+    sleep(3600)
